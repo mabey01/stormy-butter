@@ -1,0 +1,22 @@
+{
+  "name": "stormy-butter",
+  "version": "1.0.0",
+  "description": "backend for brainstorm tool",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mabey01/stormy-butter.git"
+  },
+  "author": "Maximilian Beyer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mabey01/stormy-butter/issues"
+  },
+  "homepage": "https://github.com/mabey01/stormy-butter",
+  "dependencies": {
+    "express": "^4.12.3"
+  }
+}
