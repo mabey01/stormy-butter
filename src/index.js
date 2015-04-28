@@ -3,17 +3,27 @@
  */
 
 var express = require('express');
-var app = express();
+var MongoClient = require('mongodb').MongoClient;
 
-app.get('/', function (req, res) {
-    res.send('Hello World!');
-});
+var config = require('./config/config').current;
+var expressConfig = require('./config/express');
+var routes = require('./config/routes');
 
-var server = app.listen(4444, function () {
+var startUp = function() {
+    var app = express();
 
-    var host = server.address().address;
-    var port = server.address().port;
+    expressConfig(app);
+    routes(app);
 
-    console.log('Example app listening at http://%s:%s', host, port);
 
+    var server = app.listen(config.port, function () {
+        var host = server.address().address;
+        var port = server.address().port;
+        console.log('Example app listening at http://%s:%s', host, port);
+    });
+};
+
+MongoClient.connect(config.db, function(err, db) {
+    console.log("Connected correctly to server");
+    startUp();
 });
