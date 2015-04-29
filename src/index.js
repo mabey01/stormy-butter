@@ -3,7 +3,7 @@
  */
 
 var express = require('express');
-var MongoClient = require('mongodb').MongoClient;
+var dbCore = require('./modules/database/core');
 
 var config = require('./config/config').current;
 var expressConfig = require('./config/express');
@@ -23,7 +23,11 @@ var startUp = function() {
     });
 };
 
-MongoClient.connect(config.db, function(err, db) {
-    console.log("Connected correctly to server");
-    startUp();
-});
+dbCore.connect(config.db).then(
+    function() {
+        startUp();
+    },
+    function(e) {
+        console.log('ERROR: ', e);
+    }
+);

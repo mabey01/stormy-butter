@@ -3,6 +3,7 @@
  */
 
 var config = require('./config').current;
+var formidable = require('formidable');
 
 module.exports = function(app) {
 
@@ -13,4 +14,16 @@ module.exports = function(app) {
         next();
     });
 
+    app.use(function(req, res, next) {
+        var form = new formidable.IncomingForm();
+        //form.uploadDir = "/my/dir";
+
+        form.parse(req, function(err, fields, files) {
+            req.form = {
+                fields : fields,
+                files : files
+            };
+            next();
+        });
+    })
 };
