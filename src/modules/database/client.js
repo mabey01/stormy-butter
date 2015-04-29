@@ -52,7 +52,7 @@ function findObject(collectionName, criteria) {
     return dbCore.getCollection(collectionName)
         .then(function(collection) {
             if ('_id' in criteria) {
-                criteria._id = ObjectId.createFromHexString(criteria._id);
+                criteria._id = ObjectId.createFromHexString(criteria._id.toString());
             }
 
             var deferred = q.defer();
