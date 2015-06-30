@@ -10,12 +10,11 @@ var SessionFactory = require('../modules/sessions/Session');
 sessionCTRL.route('/')
     .post(function(req, res) {
         var submittedForm  = req.form.fields;
-
         var session = SessionFactory.construct(submittedForm);
 
         session.save().then(
             function(savedSession) {
-                res.status(200).send({id : savedSession._id});
+                res.status(200).send(savedSession);
                 console.log('SUCCESS: ', savedSession);
             },
             function(error) {
@@ -32,7 +31,7 @@ sessionCTRL.route('/:id')
 
         SessionFactory.find({_id: sessionID}).then(
             function (result) {
-                res.status(200).send(result);
+                res.status(200).send(result[0]);
                 console.log("SUCCESS: ", result);
             },
             function (error) {

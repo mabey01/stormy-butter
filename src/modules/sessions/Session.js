@@ -56,11 +56,11 @@ function findSession(criteria) {
  * @constructor
  */
 function Session(specs) {
-
+    this._addAttribute('id', specs);
     this._addAttribute('topic', specs);
-    this._addAttribute('timestamp', specs, function(value) {
-        return new Date(value);
-    });
+    this._addAttribute('description', specs);
+    this._addAttribute('startingTime', specs);
+    this._addAttribute('duration', specs);
 }
 
 /**

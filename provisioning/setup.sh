@@ -2,7 +2,6 @@
 
 # Get root up in here
 sudo su
-
 apt-get update -y -q
 
 #==================== add keyserver ================================
