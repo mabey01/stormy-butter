@@ -3,9 +3,11 @@
  */
 
 var express = require('express');
+var socketIO = require('socket.io');
 var dbCore = require('./modules/database/core');
 
 var config = require('./config/config').current;
+var socketHandler = require('./modules/sessions/socketHandler');
 var expressConfig = require('./config/express');
 var routes = require('./config/routes');
 
@@ -21,6 +23,8 @@ var startUp = function() {
         var port = server.address().port;
         console.log('Example app listening at http://%s:%s', host, port);
     });
+
+    socketHandler.setSocket(socketIO(server));
 };
 
 dbCore.connect(config.db).then(

@@ -4,21 +4,16 @@
 
 /** ====== IMPORT ====== **/
 var q = require('q');
+var MapFactory = require('../map/Map');
+var sessionCache = require('../util/ObjectCache').construct();
 
 var dbClient = require('../database/client');
 
 /** ====== EXPORT ====== **/
 module.exports = {
-    find : findSession,
-
-    construct : function(specs) {
-        if (!specs) throw new Error("no specs provided to create new Session");
-        return new Session(specs);
-    },
-
-    constructed : function(object) {
-        return object instanceof Session;
-    }
+    find : find,
+    findByID: findByID,
+    insertNewSession : insert
 };
 
 /** ====== PACKAGE ====== **/
@@ -31,16 +26,17 @@ var collectionName = 'Sessions';
 
 /**
  * find sessions by providing the search criteria
- * @param {?Object} criteria
- * @returns {Promise}
+ * @param {Object} criteria
+ * @returns {Promise<Session>}
  */
-function findSession(criteria) {
+function find(criteria) {
     return dbClient.find(collectionName, criteria).then(
         function(results) {
             var parsedResults = [];
             if(Array.isArray(results)) {
                 results.forEach(function(rawObject) {
-                    parsedResults.push(new Session(rawObject))
+                    var constructedSession = SessionFactory(rawObject);
+                    parsedResults.push(sessionCache.addToCache(constructedSession.getID(), constructedSession));
                 })
             }
 
@@ -51,42 +47,126 @@ function findSession(criteria) {
 
 /**
  *
- * @param {Object} specs
- * @implements Storable
- * @constructor
+ * @param {String} sessionID
+ * @returns {Promise<Session>}
  */
-function Session(specs) {
-    this._addAttribute('id', specs);
-    this._addAttribute('topic', specs);
-    this._addAttribute('description', specs);
-    this._addAttribute('startingTime', specs);
-    this._addAttribute('duration', specs);
+function findByID(sessionID) {
+    var cacheSession = sessionCache.getFromCache(sessionID);
+    if (cacheSession) {
+        return q(cacheSession);
+    }
+
+    return find({_id: sessionID}).then(function(foundSessions) {
+        return foundSessions[0];
+    });
 }
 
 /**
  *
- * @param {!String} attributeName
- * @param {!Object} specs
- * @param {Function=} parseValue
- * @private
+ * @param {Object} rawSessionObject
+ * @returns {Promise<Session>}
  */
-Session.prototype._addAttribute = function(attributeName, specs, parseValue) {
-    if (typeof attributeName != 'string') return;
-    if (typeof specs != 'object') return;
+function insert(rawSessionObject) {
+    var newSession = SessionFactory.construct(rawSessionObject);
+    return newSession.save();
+}
 
-    var attributeValue = null;
-    if (attributeName in specs) {
-        attributeValue = specs[attributeName];
-    } else if ('_' + attributeName in specs) {
-        attributeValue = specs['_' + attributeName]
+/**
+ @class Session
+ @type {Object}
+ @property {function(): String} getID
+ @property {function() : Map} getMap
+ @property {function(): Promise<Session>} save
+ @property {function(): Object} serialize
+ */
+
+/**
+ *
+ * @param {Object} specs
+ * @returns {Session}
+ * @constructor
+ */
+function SessionFactory(specs) {
+    var id = null;
+    if ('_id' in specs) {
+        id = specs._id;
     }
 
-    if (attributeName[0] != '_') attributeName = '_' + attributeName;
-    if (typeof parseValue === 'function') attributeValue = parseValue(attributeValue);
+    var topic = null;
+    if ('topic' in specs) {
+        topic = specs.topic;
+    }
 
-    this[attributeName] = attributeValue;
-};
+    var description = null;
+    if ('description' in specs) {
+        description = specs.description;
+    }
 
-Session.prototype.save = function () {
-    return dbClient.insert(collectionName, this);
-};
+    var startingTime = null;
+    if ('startingTime' in specs) {
+        startingTime = specs.startingTime;
+    }
+
+    var duration = null;
+    if ('startingTime' in specs) {
+        duration = specs.duration;
+    }
+
+    var mapSpecs = {title : topic};
+
+    if ('map' in specs) {
+        mapSpecs = specs.map;
+    }
+
+    var map = MapFactory.construct(mapSpecs);
+
+    var isSaving = false;
+    var isDirty = false;
+
+    return {
+        /**
+         * get id of object
+         * @returns {String} id
+         */
+        getID: function () {
+            return id;
+        },
+
+        /**
+         *
+         * @returns {Map}
+         */
+        getMap: function() {
+            return map;
+        },
+
+        serialize: function() {
+            return {
+                _id : id,
+                topic : topic,
+                description : description,
+                startingTime : startingTime,
+                duration : duration,
+                map : map.serialize()
+            }
+        },
+        save: function() {
+            if (isSaving) {
+                isDirty = true;
+                return isSaving;
+            }
+            isDirty = false;
+            return isSaving = dbClient.upsert(collectionName, this.serialize()).then(function(result) {
+                if ('_id' in result) {
+                    id = result._id;
+                }
+
+                isSaving = false;
+                if (isDirty) {
+                    this.save();
+                }
+                return this;
+            }.bind(this));
+        }
+    }
+}

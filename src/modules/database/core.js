@@ -16,19 +16,18 @@ module.exports = {
 /** PACKAGE **/
 var DB = null;
 
-
 /**
- *
- * @returns {*}
+ * get MongoDB object
+ * @returns {Object}
  */
 function getDB() {
     return DB;
-};
+}
 
 /**
  * get a collection from a MongoDB by collectionName
- * @param {string} collectionName
- * @returns {Promise}
+ * @param {String} collectionName
+ * @returns {Promise.<Object>}
  */
 function getCollection(collectionName) {
     var deferred = q.defer();
@@ -39,12 +38,12 @@ function getCollection(collectionName) {
         deferred.reject('DB is not connected')
     }
     return deferred.promise;
-};
+}
 
 /**
  * connect to a MongoDB
- * @param {string} url
- * @returns {Promise}
+ * @param {String} url
+ * @returns {Promise.<Object>}
  */
 function connect(url) {
     if (!url) return q.reject('parameter url is not set');
@@ -65,4 +64,4 @@ function connect(url) {
 
     }
     return deferred.promise;
-};
+}
