@@ -8,7 +8,7 @@
 module.exports = {
 
     /**
-     *
+     * construct a new Cache Object
      * @returns {Cache}
      */
     construct : function(timeLimit) {
@@ -35,7 +35,6 @@ function ObjectCacheFactory(timeLimit) {
     var cache = {};
 
     return {
-
         /**
          * remove object from cache with id
          * @param {String} id
@@ -55,12 +54,15 @@ function ObjectCacheFactory(timeLimit) {
          * add object to cache with id
          * @param {String} id
          * @param {Object} object
+         * @returns {Object}
          */
         addToCache : function(id, object) {
             cache[id] = {
                 timeout : setTimeout(this.removeFromCache.bind(this, id), MAX_TIMEOUT_CACHE),
                 object: object
             };
+
+            return object;
         },
 
         /**

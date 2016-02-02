@@ -7,11 +7,10 @@ var q = require('q');
 var idMaker = require('../util/idMaker');
 var MapNodeFactory = require('./MapNode');
 
-var ID_LENGTH = 3;
 /** ====== EXPORT ====== **/
 module.exports = {
     /**
-     * construct a new instance of Map
+     * construct a new Map Object
      * @param {Object} specs
      * @return {Map}
      */
@@ -22,6 +21,13 @@ module.exports = {
 };
 
 /** ====== PACKAGE ====== **/
+
+/**
+ * length of MapNode id
+ * @constant
+ * @type {number}
+ */
+var ID_LENGTH = 3;
 
 /**
  @class Map
@@ -43,6 +49,12 @@ function MapFactory(specs) {
     var root = MapNodeFactory.construct(specs);
 
     return {
+        /**
+         * get MapNode Object from provided id
+         * @param {String} id
+         * @param {MapNode=} node
+         * @returns {MapNode}
+         */
         getNodeByID: function(id, node) {
             if (!node) node = this.getRoot();
             var parentID = null;
@@ -70,6 +82,10 @@ function MapFactory(specs) {
             }
         },
 
+        /**
+         * insert a new MapNode by raw MapNode Object
+         * @param {Object} rawNodeSpecs
+         */
         insertRawNode: function(rawNodeSpecs) {
             var id = rawNodeSpecs.id;
             var parentID = id.substr(0,id.length - ID_LENGTH);
@@ -77,16 +93,28 @@ function MapFactory(specs) {
             parent.addNode(rawNodeSpecs);
         },
 
+        /**
+         * update an existin MapNode Object by raw MapNode Object
+         * @param {Object} rawNodeSpecs
+         */
         updateRawNode: function(rawNodeSpecs) {
             var id = rawNodeSpecs.id;
             var updateNode = this.getNodeByID(id);
             updateNode.update(rawNodeSpecs);
         },
 
+        /**
+         * get the root MapNode Object of Map
+         * @returns {MapNode}
+         */
         getRoot : function() {
             return root
         },
 
+        /**
+         * get serialized version of Map
+         * @returns {Object}
+         */
         serialize : function() {
             return root.serialize();
         }

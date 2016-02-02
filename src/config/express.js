@@ -16,7 +16,6 @@ module.exports = function(app) {
 
     app.use(function(req, res, next) {
         var form = new formidable.IncomingForm();
-        //form.uploadDir = "/my/dir";
 
         form.parse(req, function(err, fields, files) {
             req.form = {

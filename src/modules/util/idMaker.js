@@ -8,6 +8,11 @@ module.exports = {
     createID : createID
 };
 
+/**
+ * get a random id with provided length
+ * @param {Number=} length
+ * @returns {String}
+ */
 function createID(length) {
     var charLength = length || 16;
     var uid = '';

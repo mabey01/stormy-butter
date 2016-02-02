@@ -20,6 +20,7 @@ module.exports = {
 
 /**
  * name of the session collection
+ * @constant
  * @type {String}
  */
 var collectionName = 'Sessions';
@@ -36,7 +37,8 @@ function find(criteria) {
             if(Array.isArray(results)) {
                 results.forEach(function(rawObject) {
                     var constructedSession = SessionFactory(rawObject);
-                    parsedResults.push(sessionCache.addToCache(constructedSession.getID(), constructedSession));
+                    sessionCache.addToCache(constructedSession.getID(), constructedSession);
+                    parsedResults.push(constructedSession);
                 })
             }
 
@@ -46,7 +48,7 @@ function find(criteria) {
 }
 
 /**
- *
+ * find Session Object by id
  * @param {String} sessionID
  * @returns {Promise<Session>}
  */
@@ -57,17 +59,18 @@ function findByID(sessionID) {
     }
 
     return find({_id: sessionID}).then(function(foundSessions) {
+        console.log(foundSessions);
         return foundSessions[0];
     });
 }
 
 /**
- *
+ * insert a new Session Object by raw Session Object
  * @param {Object} rawSessionObject
  * @returns {Promise<Session>}
  */
 function insert(rawSessionObject) {
-    var newSession = SessionFactory.construct(rawSessionObject);
+    var newSession = SessionFactory(rawSessionObject);
     return newSession.save();
 }
 
@@ -140,6 +143,10 @@ function SessionFactory(specs) {
             return map;
         },
 
+        /**
+         * get serialized version of this session
+         * @returns {{_id: *, topic: *, description: *, startingTime: *, duration: *, map: Object}}
+         */
         serialize: function() {
             return {
                 _id : id,
@@ -150,6 +157,11 @@ function SessionFactory(specs) {
                 map : map.serialize()
             }
         },
+
+        /**
+         * save session to database
+         * @returns {Promise}
+         */
         save: function() {
             if (isSaving) {
                 isDirty = true;

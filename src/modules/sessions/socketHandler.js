@@ -6,8 +6,6 @@ var sessionFactory = require('../sessions/Session');
 var io = null;
 
 function onConnection(socket) {
-    console.log("CONNECTED", socket.id);
-
     socket.on("sessionID", function (sessionID) {
         socket.sessionID = sessionID;
 

@@ -10,7 +10,7 @@ var ID_LENGTH = 3;
 module.exports = {
 
     /**
-     *
+     * construct a new MapNode Object
      * @param {Object} specs
      * @returns {MapNode}
      */
@@ -68,18 +68,42 @@ function MapNodeFactory(specs) {
     }
 
     return {
+        /**
+         * get MapNode id
+         * @returns {String}
+         */
         getID : function() {
             return id;
         },
+
+        /**
+         * get title of MapNode Object
+         * @returns {string}
+         */
         getTitle : function() {
             return title
         },
+
+        /**
+         * add new MapNode Object by raw MapNode Object
+         * @param {Object} rawMapNode
+         */
         addNode: function(rawMapNode) {
             children.push(MapNodeFactory(rawMapNode));
         },
+
+        /**
+         * get all children from MapNode
+         * @returns {Array.<MapNode>}
+         */
         getChildren: function() {
             return children;
         },
+
+        /**
+         * update MapNode by Object
+         * @param {Object} updateObject
+         */
         update : function(updateObject) {
             if ('title' in updateObject) {
                 title = updateObject.title;
@@ -89,6 +113,11 @@ function MapNodeFactory(specs) {
                 position = updateObject.position;
             }
         },
+
+        /**
+         * get serialized version of this MapNode
+         * @returns {{id: *, title: string, position: {}, children: Array}}
+         */
         serialize : function() {
             return {
                 id : id,
